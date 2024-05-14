@@ -13,6 +13,8 @@ using BloGoes.Services.Services.Interfaces;
 using BloGoes.Services;
 using Autofac.Core;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.WebSockets;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -116,11 +118,33 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+
+app.UseWebSockets();
+app.Map("/ws", async httpContext =>
+{
+    if (httpContext.WebSockets.IsWebSocketRequest is false)
+    {
+        httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+    }
+    else
+    {
+        using var webSocket = await httpContext.WebSockets.AcceptWebSocketAsync();
+
+        while (true)
+        {
+            var data = Encoding.ASCII.GetBytes($"Data {DateTime.Now}");
+            await webSocket.SendAsync(data, WebSocketMessageType.Text, false, CancellationToken.None);
+            await Task.Delay(5000);
+        }
+    }
+});
+
+
+await app.RunAsync();
 
 
 //Configure WebSocket 
 var socktServer = app.Services.GetService<IWebSocketServer>();
-await socktServer.StartAsync("https://localhost:7284");
+await socktServer.StartAsync("http://localhost:7284/ws");
 
 

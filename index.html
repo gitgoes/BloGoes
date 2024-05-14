@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Notification</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            start();
+        })
+
+        function start() {
+            var ws = new WebSocket("ws:http://localhost:7284/ws");
+
+            ws.onmessage((webSocke, MsgEv) => {
+                console.log(msgEv);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id="notifications">
+
+        <input type="text" id="text" />
+        <button id="btenviar">Enviar Message</button>
+
+    </div>
+</body>
+</html>

@@ -80,9 +80,8 @@ namespace BloGoes.API.Controllers.V1
         {
             try
             {
-            
                 var listBlog = await _blogServices.List();
-                var listBlogDTO = mapper.Map<BlogDTO>(listBlog);
+                var listBlogDTO = mapper.Map<IEnumerable<BlogDTO>>(listBlog);
 
                 return Ok(listBlogDTO);
             }
