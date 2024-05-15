@@ -103,10 +103,9 @@ builder.Services.AddAuthentication(x =>
 //AddSwaggerExtension(services);
 builder.Services.RegisterDependencyInjection(configuration);
 
-
-
-
 var app = builder.Build();
+
+var socktServer = app.Services.GetService<IWebSocketServer>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -132,9 +131,8 @@ app.Map("/ws", async httpContext =>
 
         while (true)
         {
-            var data = Encoding.ASCII.GetBytes($"Data {DateTime.Now}");
-            await webSocket.SendAsync(data, WebSocketMessageType.Text, false, CancellationToken.None);
-            await Task.Delay(5000);
+            await socktServer.StartAsync(webSocket);
+            await Task.Delay(90 * 1000 );
         }
     }
 });
@@ -143,8 +141,6 @@ app.Map("/ws", async httpContext =>
 await app.RunAsync();
 
 
-//Configure WebSocket 
-var socktServer = app.Services.GetService<IWebSocketServer>();
-await socktServer.StartAsync("http://localhost:7284/ws");
+
 
 

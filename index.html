@@ -4,27 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Notification</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
     <script>
+        var url = "wss://localhost:7284/ws";
+        var ws = new WebSocket(url);
+
         $(document).ready(() => {
             start();
+
         })
 
         function start() {
-            var ws = new WebSocket("ws:http://localhost:7284/ws");
+            ws.onmessage = (MsgEv) => {
 
-            ws.onmessage((webSocke, MsgEv) => {
-                console.log(msgEv);
-            });
+                var message = JSON.stringify(MsgEv);
+
+                $("#notifications").prepend("<p>" + MsgEv.data + "</p>");
+
+                $("#fade").modal({
+                    fadeDuration: 100,
+                    closeClass: 'icon-remove',
+                    closeText: '!'
+                });
+
+                console.log(MsgEv);
+                
+            };
+
+            ws.onopen = (MsgEv) => {
+                console.log(MsgEv);
+      
+            };
+
+            ws.onclose = (MsgEv) => {
+                console.log(MsgEv);
+       
+            };
+
+            ws.onerror = (webSocke, MsgEv) => {
+                console.log(MsgEv);
+                console.log(webSocke);
+            };
         }
+
+        function closews() {
+            location.reload();
+            
+        }
+
     </script>
 </head>
 <body>
-    <div id="notifications">
 
-        <input type="text" id="text" />
-        <button id="btenviar">Enviar Message</button>
+    <form id="myform" class="form-wizard">
+        <h2 class="form-wizard-heading">WebSocket Receive Teste</h2>
 
+    </form>
+
+    <div id="fade" class="modal">
+        <p>New Blog Posted</p>
+        <div id="notifications"></div>
+
+        <a href="#" onclick="closews()" rel="modal:close">Close</a>
     </div>
 </body>
 </html>

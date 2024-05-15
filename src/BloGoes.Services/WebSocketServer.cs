@@ -15,38 +15,25 @@ namespace BloGoes.Services
         private readonly ConcurrentDictionary<Guid, WebSocket> _clients = new ConcurrentDictionary<Guid, WebSocket>();
         private HttpListener _listener;
 
-        public async Task StartAsync(string prefix)
+        public async Task StartAsync(WebSocket webSocket)
         {
-            var uri = new Uri(prefix);
-            _listener = new HttpListener();
-            _listener.Prefixes.Add(uri.ToString());
-            _listener.Start();
 
-            while (true)
-            {
+
                 try
                 {
-                    var context = await _listener.GetContextAsync();
-                    if (context.Request.IsWebSocketRequest)
-                    {
-                        var webSocketContext = await context.AcceptWebSocketAsync(null);
-                        var clientId = Guid.NewGuid();
-                        _clients.TryAdd(clientId, webSocketContext.WebSocket);
-                        Console.WriteLine($"Client {clientId} connected.");
+                        
+                    var clientId = Guid.NewGuid();
+                    _clients.TryAdd(clientId, webSocket);
+                    Console.WriteLine($"Client {clientId} connected.");
 
-                        _ = Task.Run(() => HandleClientAsync(clientId, webSocketContext.WebSocket));
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = 400;
-                        context.Response.Close();
-                    }
+                    _ = Task.Run(() => HandleClientAsync(clientId, webSocket));
+
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Exception: {ex}");
                 }
-            }
+            
         }
 
         private async Task HandleClientAsync(Guid clientId, WebSocket clientSocket)
